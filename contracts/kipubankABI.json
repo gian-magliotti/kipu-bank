@@ -1,0 +1,245 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_limiteGlobalDepositos",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_limiteRetiro",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "contexto",
+				"type": "string"
+			}
+		],
+		"name": "KipuBank_CantidadCero",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "cantidadSolicitada",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "capacidadDisponible",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_CapacidadBancoExcedida",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "cantidadSolicitada",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "limiteRetiro",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_LimiteRetiroExcedido",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "cantidadSolicitada",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "saldoDisponible",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_SaldoInsuficiente",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "usuario",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "montoTransaccion",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_TransferenciaFallida",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "usuario",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "cantidad",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "saldoNuevo",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_DepositoRealizado",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "usuario",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "cantidad",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "saldoNuevo",
+				"type": "uint256"
+			}
+		],
+		"name": "KipuBank_RetiroRealizado",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "contadorDepositos",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "contadorRetiros",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "depositar",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "limiteGlobalDepositos",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "limiteRetiro",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "obtenerSaldo",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "cantidad",
+				"type": "uint256"
+			}
+		],
+		"name": "retirar",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "saldoTotalBanco",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+]
