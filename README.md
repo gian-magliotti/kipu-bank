@@ -1,214 +1,136 @@
-###### \# **KipuBank**
+# **KipuBank**
 
+KipuBank is a decentralized smart contract bank written in Solidity that allows users to deposit and withdraw **ETH and supported ERC-20 tokens**, which are **automatically swapped to USDC** through **Uniswap V2**.
 
+This **third version (v3)** significantly improves upon a basic ETH vault by introducing **automatic token conversion**, **multi-token support**, **centralized USDC accounting**, **enhanced role-based access control**, and **configurable security and liquidity constraints**.
 
-
-
-KipuBank is a decentralized smart contract bank written in Solidity that allows users to deposit and withdraw ETH as well as multiple ERC-20 tokens.  
-
-
-
-This \*\***second version (v2)**\*\* introduces significant improvements over a basic ETH vault, including multi-token support, USD value tracking via Chainlink price feeds, enhanced security with role-based access control and reentrancy protection, and configurable global and per-withdrawal limits.  
-
-
-
-Users can now safely interact with ETH and a growing list of ERC-20 tokens, while the contract enforces limits and protections to maintain the bank's liquidity and security.
-
-
+Users can safely deposit ETH or other tokens, while all balances are internally managed in USDC.  
+Withdrawals are performed in USDC, ensuring price stability and simplifying the enforcement of withdrawal and capacity limits.
 
 ---
 
+## 🌟 **High-Level Improvements**
 
+1. **Automatic conversion to USDC**
+   - Deposits of ETH or ERC-20 tokens are instantly swapped to USDC using Uniswap V2.
+   - All internal accounting and limits are based on USDC balances.
 
-###### \## 🌟 **High-Level Improvements**
+2. **Multi-token support**
+   - Supports multiple ERC-20 tokens as deposit sources.
+   - Tokens can be dynamically added or removed by authorized managers.
 
+3. **Configurable liquidity limits**
+   - Enforces both a **global bank capacity** (maximum total USDC equivalent) and **per-withdrawal limits**.
+   - All limits are denominated in USDC for consistency and risk control.
 
+4. **Role-based access control**
+   - Fine-grained permissions via `AccessControl`:
+     - **Admin** — full control over configuration and roles.
+     - **Manager** — manages supported tokens and operational settings.
+     - **Pauser** — can pause the contract in emergencies.
 
-1\. **Multi-token support**
+5. **Enhanced security**
+   - `ReentrancyGuard` prevents reentrancy exploits.
+   - `Pausable` allows halting critical operations.
+   - `SafeERC20` ensures secure token transfers.
+   - Comprehensive **custom errors** reduce gas and improve clarity.
 
-   - Users can now deposit and withdraw ERC-20 tokens, not just ETH.
-
-   - Each token is tracked individually with its own Chainlink price feed.
-
-
-
-2\. **USD value tracking**
-
-   - All deposits and withdrawals are converted to USD using Chainlink oracles.
-
-   - Enables enforcing global bank capacity and per-transaction withdrawal limits in USD rather than raw token amounts.
-
-
-
-3\. **Role-based access control**
-
-   - Admin, Manager, and Pauser roles improve security and operational flexibility.
-
-
-
-4\. **Enhanced security**
-
-   - `ReentrancyGuard` prevents reentrancy attacks.
-
-   - Pausable functionality allows emergency stops.
-
-   - Detailed custom errors improve debugging and reduce gas costs compared to `require` statements.
-
-
-
-5\. **Stale price protection**
-
-   - Deposits and withdrawals revert if the Chainlink price feed is older than 1 hour, preventing manipulation with outdated prices.
-
-
+6. **Comprehensive error handling**
+   - Replaces `require()` statements with descriptive, gas-efficient custom errors for debugging and UX improvements.
 
 ---
 
-###### ⚠️ **Custom Errors**
-
-
+## ⚠️ **Custom Errors**
 
 Some of the most important ones are:
 
-
-
- - KipuBank\_BankCapacityExceeded(requestedUSD, availableUSD)
-
-
-
- - KipuBank\_WithdrawalLimitExceeded(token, requestedAmount, requestedUSD, limitUSD)
-
-
-
- - KipuBank\_InsufficientBalance(token, requested, available)
-
-
-
- - KipuBank\_ZeroAmountError(context)
-
-
-
- - KipuBank\_TransferFailed(token, user, amount)
-
-
-
- - KipuBank\_PriceFeedError(msg, feedAddress)
-
-
+- `KipuBank_BankCapacityExceeded(requestedUSDC, availableUSDC)`
+- `KipuBank_WithdrawalLimitExceeded(requestedAmount, requestedUSDC, limitUSDC)`
+- `KipuBank_InsufficientBalance(requested, available)`
+- `KipuBank_ZeroAmountError(context)`
+- `KipuBank_TransferFailed(token, user, amount)`
+- `KipuBank_SwapFailed(token, amountIn, reason)`
 
 These provide clear, gas-efficient failure messages for users and developers.
 
+---
 
+## 📝 **Design Decisions & Trade-offs**
 
-###### 📝 **Design Decisions \& Trade-offs**
+**1. USDC as the base currency**
 
+- Simplifies valuation and limit enforcement.
+- Provides stability and consistency.
+- *Trade-off:* requires reliance on Uniswap liquidity for token conversion.
 
+**2. Global and per-withdrawal caps**
 
-**1. Chainlink price feeds for USD conversion**
-
-
-
-  - Ensures consistent USD valuation across tokens.
-
-
-
-  - Trade-off: reliance on external oracles; contract cannot function if feeds fail.
-
-
-
-**2. Global bank cap and per-withdrawal limits**
-
-
-
-  - Protects against excessive risk and enforces liquidity constraints.
-
-
-
-  - Trade-off: limits flexibility for users with large holdings.
-
-
+- Protects liquidity and prevents over-withdrawals.
+- *Trade-off:* may restrict large users during periods of high activity.
 
 **3. Role-based access control**
 
+- Separates administrative, managerial, and emergency privileges.
+- *Trade-off:* Slightly increases operational complexity.
+
+**4. Custom errors instead of require()**
+
+- Lowers gas costs for failed transactions.
+- *Trade-off:* Slightly increases code verbosity.
+
+**5. Integration with Uniswap V2**
+
+- Enables decentralized token-to-USDC swaps without intermediaries.
+- *Trade-off:* introduces dependency on Uniswap router availability.
+
+---
+
+## ⚙️ **Deployment & Interaction**
+
+### **Option 1: Remix IDE (Quick)**
+
+1. Open [Remix IDE](https://remix.ethereum.org/) and create a new file `KipuBank.sol`.
+2. Paste the contract code and compile with Solidity **v0.8.30**.
+3. In **Deploy & Run Transactions**:
+   - **Environment:** `Remix VM`, `Injected Provider` (MetaMask), or `Sepolia/Testnet`.
+   - **Constructor parameters:**
+     - `_bankCapUSDC` → total USDC capacity of the bank.
+     - `_withdrawalLimitUSDC` → maximum USDC allowed per withdrawal.
+     - `_uniswapRouter` → Uniswap V2 Router address (e.g., `0x...`).
+     - `_USDC` → address of the USDC token contract.
+
+4. Deploy and copy the contract address for interaction.
+
+---
+
+### **Option 2: Node.js (ethers.js)**
+
+Requirements:
+- Node.js ≥ 18
+- `ethers.js`
+- RPC provider (Infura, Alchemy, or local Hardhat node)
+
+Create a `.env` file:
+   RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
+   PRIVATE_KEY=0xYOUR_PRIVATE_KEY
+   CONTRACT_ADDRESS=0xDEPLOYED_CONTRACT_ADDRESS
 
 
-  - Fine-grained permissioning reduces admin risk.
+Example deployment script:
+```javascript
+import { ethers } from "ethers";
+import fs from "fs";
+import dotenv from "dotenv";
+dotenv.config();
 
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
+const abi = JSON.parse(fs.readFileSync("./KipuBank_abi.json"));
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  - Trade-off: Slightly more complex to maintain roles and manage events.
-
-
-
-**4. Use of custom errors instead of require()**
-
-
-
-  - Reduces gas cost for failed transactions.
-
-
-
-  - Trade-off: slightly higher initial complexity in contract readability.
-
-
-
-**5. ERC-20 token support with decimals**
-
-
-
-  - Supports many tokens reliably.
-
-
-
-  - Trade-off: requires careful management of token decimal differences and price feed accuracy.
-
-###### 
-
-###### \## ⚙️ **Deployment \& Interaction**
-
-
-
-\### **Option 1: Remix IDE (Quick)**
-
-
-
-1\. Open \[Remix IDE](https://remix.ethereum.org/) and create `KipuBank.sol`
-
-
-
-2\. Paste the contract code and compile with Solidity 0.8.30.
-
-
-
-3\. In \*\*Deploy \& Run Transactions\*\*:
-
-&nbsp;  - Environment: \*\*Remix VM\*\* (local) or \*\*Injected Provider\*\* (MetaMask/testnet).
-
-&nbsp;  - Constructor parameters:
-
-&nbsp;    - `\_bankCapUSD` → total USD capacity of the bank.
-
-&nbsp;    - `\_withdrawalLimitUSD` → maximum USD per withdrawal.
-
-&nbsp;    - `\_ETHpriceFeed` → Chainlink ETH/USD price feed address.
-
-
-
-4\. Deploy and copy the contract address for interactions.
-
-
-
-\### **Option 2: ethers.js (Node.js)**
-
-
-
-\- Requirements: Node.js >=18, ethers.js, and a network RPC (Ganache, Hardhat, Infura, Alchemy, etc.).
-
-\- Set `.env` file:
-   RPC\_URL=https://sepolia.infura.io/v3/YOUR\_PROJECT\_ID
-   PRIVATE\_KEY=0xYOUR\_PRIVATE\_KEY
-
-&nbsp;  CONTRACT\_ADDRESS=0xDEPLOYED\_CONTRACT\_ADDRESS
-
-
-
+(async () => {
+  const tx = await contract.depositETH({ value: ethers.parseEther("1.0") });
+  await tx.wait();
+  console.log("Deposited 1 ETH successfully!");
+})();
